@@ -8,8 +8,8 @@ export default class TaskManager {
     }
 
     Create_task(template) {
-        const clone = template.content.cloneNode(true);   
-        const taskElement = clone.querySelector(".box");
+        const fragment = template.content.cloneNode(true);   
+        const taskElement = fragment.querySelector(".box");
         console.log("trying to work");
 
         taskElement.dataset.taskId = this.id; 
