@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Todo List</title>
+        <meta name="description" content="Explore a variety of indoor plants for your home or office.">
+        
+        <link rel="icon" href="./icon/note.png" type="image/png">
+        <link rel="stylesheet" href="./style/main.css">
+        <link rel="stylesheet" href="./style/task_container.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Noticia+Text:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
+    </head>
+    <body>  
+        <div class ="hamburger-menu">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+        </div>
+        <h1 class="headline">Todo list application</h1>
+        <div class="container">
+            <template id="task-template">
+                <div class="box">
+                    <div class="task-info">
+                        <h2 class="task-title" contenteditable="true" data-placeholder="Type a task name..."></h2>
+                        <p class="task-description" contenteditable="true" data-placeholder="Give your task a description..."></p>
+                        <p class="task-due-date" contenteditable="true" data-placeholder="&#9201; Set a due date"></p>
+                    </div>
+
+                    <div class="task-buttons">
+                        <button class="complete-task-button">Complete Task</button>
+                        <button class="delete-task-button">Delete Task</button>
+                    </div>
+                </div>
+            </template>
+            
+        </div>
+        <div class="add-task">
+            <div class="task-stats-box">
+                <h3 id="total-tasks">Total tasks: 0</h3>
+                <h3 id="completed-tasks-count">Completed tasks: 0</h3>
+            </div>
+            <button class="add-task-button">Add Task</button>
+        </div>
+
+        <footer>
+            <p>Made using Vanilla CSS and JavaScript</p>
+        </footer>
+        <script src="./src/main.js"></script>
+    </body>
+</html>
