@@ -1,3 +1,5 @@
+import TaskManager from "./TaskManger.js";
+
 const addtaskBTN = document.getElementsByClassName("add-task-button")[0];
 const template = document.getElementById("task-template");
 const deleteBTN = document.getElementsByClassName("delete-task-button")[0];
@@ -5,6 +7,12 @@ const container = document.getElementsByClassName("container")[0];
 
 let task_number = 0;
 let completed_tasks = 0;
+
+const task_list = [];
+const completed_task_list = [];
+
+let total_tasks = document.getElementById("total-tasks");
+let completed_tasks_count = document.getElementById("completed-tasks-count");
 
 function setCaretToEnd(el) {
     // Create a range (selection)
@@ -20,18 +28,26 @@ function setCaretToEnd(el) {
 
 addtaskBTN.addEventListener("click", () => {
     task_number += 1;
-    const clone = template.content.cloneNode(true);
 
+    const task = new TaskManager();
+    task_list.push(task);
+
+    const clone = task.Create_task(template);
+    console.log("Task created");
+    
     container.appendChild(clone);
-    document.getElementById("total-tasks").textContent = `Total Tasks: ${task_number}`;   
+    total_tasks.textContent = `Total Tasks: ${task_number}`;   
 });
 
 container.addEventListener("click", (e) => {
     // Delete Task
     if (e.target.classList.contains("delete-task-button")) {
-        task_number -= 1;
+
         e.target.closest("div").parentElement.remove();
-        document.getElementById("total-tasks").textContent = `Total Tasks: ${task_number}`;   
+        // check the task being deleted exists in task_list 
+        
+        total_tasks.textContent = `Total Tasks: ${task_number}`;   
+
     }
 
     // Complete Task
@@ -39,8 +55,8 @@ container.addEventListener("click", (e) => {
         completed_tasks += 1;
         task_number -= 1;
         e.target.closest("div").parentElement.remove();
-        document.getElementById("completed-tasks-count").textContent = `Completed Tasks: ${completed_tasks}`;
-        document.getElementById("total-tasks").textContent = `Total Tasks: ${task_number}`;
+        completed_tasks_count.textContent = `Completed Tasks: ${completed_tasks}`;
+        total_tasks.textContent = `Total Tasks: ${task_number}`;
     }
 
 });
@@ -75,4 +91,3 @@ container.addEventListener("focusout", (e) => {
         }    
     }
 });
-completed_tasks.addEventListener("")
