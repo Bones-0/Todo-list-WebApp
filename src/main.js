@@ -2,168 +2,188 @@ import TaskManager from "./TaskManger.js";
 
 const addtaskBTN = document.getElementsByClassName("add-task-button")[0];
 const template = document.getElementById("task-template");
-const deleteBTN = document.getElementsByClassName("delete-task-button")[0];
 const container = document.getElementsByClassName("container")[0];
 
 const task_map = new Map();
 const completed_task_map = new Map();
 
+const STORAGE_KEY = "task_map_storage";
+const CLOCK = "⏱ ";
+
 let total_tasks = document.getElementById("total-tasks");
 let completed_tasks_count = document.getElementById("completed-tasks-count");
 
+/* ===================== CARET UTILS ===================== */
+
 function setCaretToEnd(el) {
-    // Create a range (selection)
     const range = document.createRange();
     range.selectNodeContents(el);
-    range.collapse(false); // false → move to end
-
-    // Apply the selection
+    range.collapse(false);
     const sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
 }
 
-function Clear_Field(element) {
-    element.target.textContent = element.target.textContent.replace("⏱ ", "");
-
-    setTimeout(() => {
-        setCaretToEnd(element.target); // call your function here
-    }, 1); // 0 milliseconds, basically "next tick"
+function Clear_Field(e) {
+    e.target.textContent = e.target.textContent.replace(CLOCK, "");
+    setTimeout(() => setCaretToEnd(e.target), 1);
 }
+
+/* ===================== STORAGE ===================== */
+
+function save_Tasks() {
+    const tasksArray = [...task_map.values()].map(task => task.toJSON());
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasksArray));
+}
+
+function load_Tasks() {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    raw.forEach(taskData => {
+        const task = TaskManager.fromJSON(taskData);
+        task_map.set(task.id, task);
+
+        const clone = task.Create_task(template);
+        container.appendChild(clone);
+
+        const taskBox = container.querySelector(`[data-task-id="${task.id}"]`);
+
+        taskBox.querySelector(".task-title").textContent = task.Title;
+        taskBox.querySelector(".task-description").textContent = task.Description;
+
+        if (task.DueDate) {
+            taskBox.querySelector(".task-due-date").textContent =
+                CLOCK + task.DueDate;
+        }
+
+        updateCompleteButtonVisibility(taskBox);
+    });
+
+    total_tasks.textContent = `Total Tasks: ${task_map.size}`;
+}
+
+/* ===================== UI ===================== */
 
 function updateCompleteButtonVisibility(taskBox) {
     const title = taskBox.querySelector(".task-title").textContent.trim();
     const description = taskBox.querySelector(".task-description").textContent.trim();
-    const dueDate = taskBox.querySelector(".task-due-date").textContent.trim().replace("⏱ ", "");
-    
+    const dueDate = taskBox.querySelector(".task-due-date").textContent
+        .replace(CLOCK, "")
+        .trim();
+
     const completeBtn = taskBox.querySelector(".complete-task-button");
-    
-    // Hide button if all fields are empty
-    if (title !== "" && description !== "" && dueDate !== "") {
-        completeBtn.style.display = "block"; // or "inline-block" depending on your CSS
-    } else {
-        completeBtn.style.display = "none";
-    }
+
+    completeBtn.style.display =
+        title && description && dueDate ? "block" : "none";
 }
 
-function read_task_map(task_map_array) {
-    for (const [key, value] of task_map_array.entries()) {
-        console.log(`Task ID: ${key}`);
-        console.log(value.Fetch_task_Details());
-    }
-}
+/* ===================== ADD TASK ===================== */
 
 addtaskBTN.addEventListener("click", () => {
     const task = new TaskManager();
     task_map.set(task.id, task);
 
     const clone = task.Create_task(template);
-    console.log("Task created");
-
     container.appendChild(clone);
 
-    const taskBox = container.querySelector(`[data-task-id="${task.id}"]`);
-    updateCompleteButtonVisibility(taskBox);
-
-    total_tasks.textContent = `Total Tasks: ${task_map.size}`;   
-    read_task_map(task_map);
+    total_tasks.textContent = `Total Tasks: ${task_map.size}`;
+    save_Tasks();
 });
+
+/* ===================== CLICK EVENTS ===================== */
 
 container.addEventListener("click", (e) => {
     const taskBox = e.target.closest(".box");
     if (!taskBox) return;
-    
+
     const taskId = taskBox.dataset.taskId;
-    // Delete Task
+
+    // Delete
     if (e.target.classList.contains("delete-task-button")) {
-        task_map.delete(taskId)
+        task_map.delete(taskId);
         taskBox.remove();
-                
-        total_tasks.textContent = `Total Tasks: ${task_map.size}`;   
-        read_task_map(task_map);
+
+        total_tasks.textContent = `Total Tasks: ${task_map.size}`;
+        save_Tasks();
     }
 
-    // Complete Task
+    // Complete
     if (e.target.classList.contains("complete-task-button")) {
-        task_map.delete(taskId)
-        completed_task_map.set(taskId, taskId);
+        const task = task_map.get(taskId);
+        task.Completed = true;
+
+        task_map.delete(taskId);
+        completed_task_map.set(taskId, task);
+
         taskBox.remove();
-                
-        completed_tasks_count.textContent = `Completed Tasks: ${completed_task_map.size}`;
-        total_tasks.textContent = `Total Tasks: ${task_map.size}`;  
-        read_task_map(task_map);
+
+        completed_tasks_count.textContent =
+            `Completed Tasks: ${completed_task_map.size}`;
+        total_tasks.textContent = `Total Tasks: ${task_map.size}`;
+
+        save_Tasks();
+    }
+});
+
+/* ===================== INPUT (CRITICAL FIX) ===================== */
+/* THIS is what prevents data loss */
+
+container.addEventListener("input", (e) => {
+    const taskBox = e.target.closest(".box");
+    if (!taskBox) return;
+
+    const taskId = taskBox.dataset.taskId;
+    const task = task_map.get(taskId);
+    if (!task) return;
+
+    if (e.target.classList.contains("task-title")) {
+        task.Edit_task_title(e.target.textContent.trim());
     }
 
+    if (e.target.classList.contains("task-description")) {
+        task.Edit_task_description(e.target.textContent.trim());
+    }
+
+    if (e.target.classList.contains("task-due-date")) {
+        const text = e.target.textContent.replace(CLOCK, "").trim();
+        task.Edit_task_dueDate(text);
+    }
+
+    save_Tasks();
 });
+
+/* ===================== KEYDOWN ===================== */
 
 container.addEventListener("keydown", (e) => {
-    const selection = window.getSelection();
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-    
-    // If entire content is selected
-    if (range && !range.collapsed) {
-        const selectedText = range.toString();
-        const fullText = e.target.textContent;
-        
-        // If selecting all or most of the content
-        if (selectedText.length >= fullText.trim().length) {
-            e.preventDefault();
-            e.target.textContent = ""; // Force completely empty
-            return;
-        }
-    }
-    
-    if (e.target.textContent.trim().length == 0) {
-        e.target.textContent = "";
-    }    
-    if ((e.target.classList.contains("task-due-date") || e.target.classList.contains("task-title") || e.target.classList.contains("task-description")) && e.key === "Enter") {
-        e.preventDefault(); // prevent new line from being inserted
-        e.target.blur();    // remove focus
+    if (
+        (e.target.classList.contains("task-title") ||
+         e.target.classList.contains("task-description") ||
+         e.target.classList.contains("task-due-date")) &&
+        e.key === "Enter"
+    ) {
+        e.preventDefault();
+        e.target.blur();
     }
 });
 
+/* ===================== FOCUS ===================== */
 
 container.addEventListener("focusin", (e) => {
     if (e.target.classList.contains("task-due-date")) {
-        console.log("Focused on due date");
         Clear_Field(e);
     }
 });
 
 container.addEventListener("focusout", (e) => {
-    if (e.target.textContent.trim().length == 0) {
-        e.target.textContent = "";
-    }
-    
     const taskBox = e.target.closest(".box");
     if (!taskBox) return;
-    
-    const taskId = taskBox.dataset.taskId;
-    const task = task_map.get(taskId);
-
-    // Update Title
-    if (e.target.classList.contains("task-title")) {
-        task.Edit_task_title(e.target.textContent.trim());
-        read_task_map(task_map);
-    }
-
-    // Update Description
-    if (e.target.classList.contains("task-description")) {
-        task.Edit_task_description(e.target.textContent.trim());
-        read_task_map(task_map);
-    }
-    if (e.target.classList.contains("task-due-date") && e.target.textContent.trim() !== "") {
-        if (e.target.textContent.trim().length <= 1 && e.target.textContent.includes("&#9201;")) {
-            e.target.textContent = "";
-        } else {
-            let dateText = e.target.textContent.trim();
-            dateText = "&#9201; " + dateText;
-            e.target.innerHTML = dateText;
-
-            dateText = dateText.replace("⏱ ", "");
-            task.Edit_task_dueDate(dateText);
-            read_task_map(task_map);
-        }    
-    }
     updateCompleteButtonVisibility(taskBox);
 });
+
+/* ===================== SAFETY ===================== */
+
+window.addEventListener("beforeunload", save_Tasks);
+
+/* ===================== INIT ===================== */
+
+load_Tasks();
