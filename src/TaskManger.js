@@ -18,7 +18,7 @@ export default class TaskManager {
 
     Delete_task(state, TaskID) {
         // state → "completed" or "incomplete"
-        const element = document.getquerySelector(`[data-id='${TaskID}']`).remove();
+        const element = document.getquerySelector(`[data-task-id='${TaskID}']`);
         if (element) element.remove();
 
         if (state === "completed") {
