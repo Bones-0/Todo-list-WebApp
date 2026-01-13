@@ -8,7 +8,7 @@
         
         <link rel="icon" href="./images/note.png" type="image/png">
         <link rel="stylesheet" href="./style/main.css">
-        <link rel="stylesheet" href="./style/task_container.css">
+        <link rel="stylesheet" href="./style/About.css">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -23,43 +23,31 @@
             </div>
             <div class="hamburger-list">
                 <a href="#" class="normal-links">Home</a>
-                <a href="About.html" class="normal-links">About</a>
+                <a href="#" class="normal-links">About</a>
                 <a href="#" class="normal-links">Socials</a>
                 <hr>
                 <a href="#" class="special-links">Create tasks</a>
                 <a href="#" class="special-links">See completed tasks</a>
-                <a href="#" class="special-links">Task analysis</a>
-                <hr>
-                <a href="#" class="non-special-links">Set reminders</a>                
-                <a href="#" class="non-special-links">Settings</a>
+                <a href="#" class="special-links">Set reminders</a>
             </div>
         </div>
-        <h1 class="headline">Todo list application</h1>
-        <div class="container">
-            <template id="task-template">
-                <div class="box" data-task-id="0">
-                    <div class="task-info">
-                        <h2 class="task-title" contenteditable="true" data-placeholder="Type a task name..."></h2>
-                        <p class="task-description" contenteditable="true" data-placeholder="Give your task a description..."></p>
-                        <p class="task-due-date" contenteditable="true" data-placeholder="&#9201; Set a due date"></p>
-                    </div>
-
-                    <div class="task-buttons">
-                        <button class="complete-task-button">Complete Task</button>
-                        <button class="delete-task-button">Delete Task</button>
-                    </div>
+        <main>
+            <h1 class="headline">About This Application</h1>
+            <div class="about-container">
+                <img src="./images/Sprite-0003.png" alt="Todo List Icon" class="about-icon">
+                <div>
+                    <p>This Todo List application is designed to help you manage your tasks efficiently. You can add, complete, and delete tasks as needed. The application keeps track of your total and completed tasks, making it easier for you to stay organized.</p>
+                <p>Features include:</p>
+                <ul>
+                    <li>Add new tasks with a title, description, and due date.</li>
+                    <li>Mark tasks as completed.</li>
+                    <li>Delete tasks that are no longer needed.</li>
+                    <li>View statistics on total and completed tasks.</li>
+                </ul>
+                <p>We hope this application helps you stay productive and organized!</p>
                 </div>
-            </template>
-            
-        </div>
-        <div class="add-task">
-            <div class="task-stats-box">
-                <h3 id="total-tasks">Total tasks: 0</h3>
-                <h3 id="completed-tasks-count">Completed tasks: 0</h3>
             </div>
-            <button class="add-task-button">Add Task</button>
-        </div>
-
+        </main>
         <footer>
             <p>Made using Vanilla CSS and JavaScript</p>
         </footer>
