@@ -1,0 +1,71 @@
+/* Tablet */
+@media (min-width: 768px) {
+    .container, .add-task {
+        width: 80%;
+    }
+    
+    .box {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 20px;
+    }
+    
+    .task-info {
+        flex: 1;
+        padding-right: 20px;
+    }
+    
+    .task-buttons {
+        flex-direction: column;
+        min-width: 150px;
+    }
+    
+    .task-buttons button {
+        flex: none;
+        width: 100%;
+    }
+    
+    .task-stats-box {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
+    .task-stats-box h3 {
+        text-align: left;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .container, .add-task {
+        width: 60%;
+    }
+    
+    body {
+        padding-bottom: 60px;
+    }
+    
+    .program {
+        margin: 80px auto;
+    }
+    
+    .container {
+        margin: 50px auto;
+    }
+    
+    .add-task {
+        height: 20vh;
+        min-height: 150px;
+    }
+}
+
+/* Touch-friendly button sizing for mobile */
+@media (max-width: 767px) {
+    .task-buttons button {
+        min-height: 44px;
+    }
+    
+    .add-task-button {
+        min-height: 44px;
+    }
+}
