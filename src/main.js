@@ -92,6 +92,10 @@ function mountTask(task, completed) {
     if (completed) {
         box.classList.add("completed");
         box.querySelector(".complete-task-button").textContent = "✓ Completed";
+        
+        box.querySelector(".task-title").setAttribute("contenteditable", "false");
+        box.querySelector(".task-description").setAttribute("contenteditable", "false");
+        box.querySelector(".task-due-date").setAttribute("contenteditable", "false");
     }
     updateCompleteButtonVisibility(box);
 }
