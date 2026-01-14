@@ -1,6 +1,4 @@
 import TaskManager from "./TaskManger.js";
-import { inject } from "@vercel/analytics/next"
-inject();
 
 /* ===================== GLOBALS ===================== */
 const addtaskBTN = document.querySelector(".add-task-button");
