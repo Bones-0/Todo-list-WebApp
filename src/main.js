@@ -1,5 +1,8 @@
 import TaskManager from "./TaskManger.js";
+import { inject } from "@vercel/analytics/next"
+inject();
 
+/* ===================== GLOBALS ===================== */
 const addtaskBTN = document.querySelector(".add-task-button");
 const template = document.getElementById("task-template");
 const container = document.querySelector(".container");
@@ -92,7 +95,7 @@ function mountTask(task, completed) {
     if (completed) {
         box.classList.add("completed");
         box.querySelector(".complete-task-button").textContent = "✓ Completed";
-        
+
         box.querySelector(".task-title").setAttribute("contenteditable", "false");
         box.querySelector(".task-description").setAttribute("contenteditable", "false");
         box.querySelector(".task-due-date").setAttribute("contenteditable", "false");
