@@ -16,6 +16,7 @@
     margin: 20px auto;
     padding: 20px;
     color: #fff;
+    transition: all 0.3s ease;
 
     display: flex;
     justify-content: space-between;
@@ -31,10 +32,10 @@
     transition: all 0.3s ease;
 }
 
-.delete-task-button:hover {
+.box .task-buttons .delete-task-button:hover, .box .task-buttons .complete-task-button:hover {
     background-color: #666;
-    color: #fff;
 }
+
 
 .box .task-buttons button {
     margin: 2.5px;
@@ -99,6 +100,15 @@
     color: #fff;
 }
 
+.box.completed {
+    background-color: #33333380;
+    border-color: #555;
+}
+
+.box.completed .task-buttons .complete-task-button {
+    background-color: #2e7d32;
+    cursor: default;
+}
 
 /* placeholder styling for contenteditable */
 [contenteditable="true"][data-placeholder]:empty:before {

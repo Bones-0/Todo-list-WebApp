@@ -1,169 +1,228 @@
 import TaskManager from "./TaskManger.js";
 
-const addtaskBTN = document.getElementsByClassName("add-task-button")[0];
+const addtaskBTN = document.querySelector(".add-task-button");
 const template = document.getElementById("task-template");
-const deleteBTN = document.getElementsByClassName("delete-task-button")[0];
-const container = document.getElementsByClassName("container")[0];
+const container = document.querySelector(".container");
+
 const task_map = new Map();
 const completed_task_map = new Map();
 
-let total_tasks = document.getElementById("total-tasks");
-let completed_tasks_count = document.getElementById("completed-tasks-count");
+const STORAGE_KEY = "task_map_storage";
+const STORAGE_KEY2 = "completed_task_map_storage";
+
+const CLOCK = "⏱ ";
+
+const total_tasks = document.getElementById("total-tasks");
+const completed_tasks_count = document.getElementById("completed-tasks-count");
+
+/* ===================== CARET UTILS ===================== */
 
 function setCaretToEnd(el) {
-    // Create a range (selection)
     const range = document.createRange();
     range.selectNodeContents(el);
-    range.collapse(false); // false → move to end
-
-    // Apply the selection
+    range.collapse(false);
     const sel = window.getSelection();
     sel.removeAllRanges();
     sel.addRange(range);
 }
 
-function Clear_Field(element) {
-    element.target.textContent = element.target.textContent.replace("⏱ ", "");
-
-    setTimeout(() => {
-        setCaretToEnd(element.target); // call your function here
-    }, 1); // 0 milliseconds, basically "next tick"
+function Clear_Field(e) {
+    e.target.textContent = e.target.textContent.replace(CLOCK, "");
+    setTimeout(() => setCaretToEnd(e.target), 1);
 }
+
+/* ===================== STORAGE (SAFE + DEBOUNCED) ===================== */
+
+let saveTimeout;
+
+function save_Tasks() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        const active = [...task_map.values()].map(t => t.toJSON());
+        const completed = [...completed_task_map.values()].map(t => t.toJSON());
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(active));
+        localStorage.setItem(STORAGE_KEY2, JSON.stringify(completed));
+    }, 300);
+}
+
+function safeParse(key) {
+    try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch {
+        return [];
+    }
+}
+
+/* ===================== LOAD ===================== */
+
+function load_Tasks() {
+    const activeRaw = safeParse(STORAGE_KEY);
+    const completedRaw = safeParse(STORAGE_KEY2);
+
+    activeRaw.forEach(data => {
+        const task = TaskManager.fromJSON(data);
+        task_map.set(task.id, task);
+        mountTask(task, false);
+    });
+
+    completedRaw.forEach(data => {
+        const task = TaskManager.fromJSON(data);
+        completed_task_map.set(task.id, task);
+        mountTask(task, true);
+    });
+
+    updateCounters();
+}
+
+function mountTask(task, completed) {
+    const clone = task.Create_task(template);
+    container.appendChild(clone);
+
+    const box = container.querySelector(
+        `.box[data-task-id="${task.id}"]`
+    );
+    if (!box) return;
+
+    box.querySelector(".task-title").textContent = task.Title;
+    box.querySelector(".task-description").textContent = task.Description;
+    box.querySelector(".task-due-date").textContent =
+    task.DueDate ? CLOCK + task.DueDate : "";
+
+    if (completed) {
+        box.classList.add("completed");
+        box.querySelector(".complete-task-button").textContent = "✓ Completed";
+    }
+    updateCompleteButtonVisibility(box);
+}
+
+/* ===================== COUNTERS ===================== */
+
+function updateCounters() {
+    total_tasks.textContent =
+        `Total Tasks: ${task_map.size}`;
+    completed_tasks_count.textContent =
+        `Completed Tasks: ${completed_task_map.size}`;
+}
+
+/* ===================== UI ===================== */
 
 function updateCompleteButtonVisibility(taskBox) {
     const title = taskBox.querySelector(".task-title").textContent.trim();
-    const description = taskBox.querySelector(".task-description").textContent.trim();
-    const dueDate = taskBox.querySelector(".task-due-date").textContent.trim().replace("⏱ ", "");
-    
-    const completeBtn = taskBox.querySelector(".complete-task-button");
-    
-    // Hide button if all fields are empty
-    if (title !== "" && description !== "" && dueDate !== "") {
-        completeBtn.style.display = "block"; // or "inline-block" depending on your CSS
-    } else {
-        completeBtn.style.display = "none";
-    }
+    const desc = taskBox.querySelector(".task-description").textContent.trim();
+    const due = taskBox.querySelector(".task-due-date").textContent
+        .replace(CLOCK, "")
+        .trim();
+
+    taskBox.querySelector(".complete-task-button").style.display =
+        title && desc && due ? "block" : "none";
 }
 
-function read_task_map(task_map_array) {
-    for (const [key, value] of task_map_array.entries()) {
-        console.log(`Task ID: ${key}`);
-        console.log(value.Fetch_task_Details());
-    }
-}
+/* ===================== ADD TASK ===================== */
 
 addtaskBTN.addEventListener("click", () => {
     const task = new TaskManager();
     task_map.set(task.id, task);
 
-    const clone = task.Create_task(template);
-    console.log("Task created");
-
-    container.appendChild(clone);
-
-    const taskBox = container.querySelector(`[data-task-id="${task.id}"]`);
-    updateCompleteButtonVisibility(taskBox);
-
-    total_tasks.textContent = `Total Tasks: ${task_map.size}`;   
-    read_task_map(task_map);
+    mountTask(task, false);
+    updateCounters();
+    save_Tasks();
 });
 
+/* ===================== CLICK EVENTS ===================== */
 
 container.addEventListener("click", (e) => {
-    const taskBox = e.target.closest(".box");
-    if (!taskBox) return;
-    
-    const taskId = taskBox.dataset.taskId;
-    // Delete Task
+    const box = e.target.closest(".box");
+    if (!box) return;
+
+    const id = box.dataset.taskId;
+
+    /* DELETE */
     if (e.target.classList.contains("delete-task-button")) {
-        task_map.delete(taskId)
-        taskBox.remove();
-                
-        total_tasks.textContent = `Total Tasks: ${task_map.size}`;   
-        read_task_map(task_map);
+        task_map.delete(id);
+        completed_task_map.delete(id);
+        box.remove();
+        updateCounters();
+        save_Tasks();
     }
 
-    // Complete Task
+    /* COMPLETE */
     if (e.target.classList.contains("complete-task-button")) {
-        task_map.delete(taskId)
-        completed_task_map.set(taskId, taskId);
-        taskBox.remove();
-                
-        completed_tasks_count.textContent = `Completed Tasks: ${completed_task_map.size}`;
-        total_tasks.textContent = `Total Tasks: ${task_map.size}`;  
-        read_task_map(task_map);
+        const task = task_map.get(id);
+        if (!task) return;
+
+        task.Completed = true;
+        task_map.delete(id);
+        completed_task_map.set(id, task);
+
+        box.remove();
+        mountTask(task, true);
+        updateCounters();
+        save_Tasks();
+    }
+});
+
+/* ===================== INPUT (ACTIVE + COMPLETED) ===================== */
+
+container.addEventListener("input", (e) => {
+    const box = e.target.closest(".box");
+    if (!box) return;
+
+    const id = box.dataset.taskId;
+    const task =
+        task_map.get(id) ||
+        completed_task_map.get(id);
+
+    if (!task) return;
+
+    if (e.target.classList.contains("task-title")) {
+        task.Edit_task_title(e.target.textContent.trim());
     }
 
+    if (e.target.classList.contains("task-description")) {
+        task.Edit_task_description(e.target.textContent.trim());
+    }
+
+    if (e.target.classList.contains("task-due-date")) {
+        task.Edit_task_dueDate(
+            e.target.textContent.replace(CLOCK, "").trim()
+        );
+    }
+
+    save_Tasks();
 });
+
+/* ===================== KEYDOWN ===================== */
 
 container.addEventListener("keydown", (e) => {
-    const selection = window.getSelection();
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-    
-    // If entire content is selected
-    if (range && !range.collapsed) {
-        const selectedText = range.toString();
-        const fullText = e.target.textContent;
-        
-        // If selecting all or most of the content
-        if (selectedText.length >= fullText.trim().length) {
-            e.preventDefault();
-            e.target.textContent = ""; // Force completely empty
-            return;
-        }
-    }
-    
-    if (e.target.textContent.trim().length == 0) {
-        e.target.textContent = "";
-    }    
-    if ((e.target.classList.contains("task-due-date") || e.target.classList.contains("task-title") || e.target.classList.contains("task-description")) && e.key === "Enter") {
-        e.preventDefault(); // prevent new line from being inserted
-        e.target.blur();    // remove focus
+    if (
+        e.key === "Enter" &&
+        e.target.matches(
+            ".task-title, .task-description, .task-due-date"
+        )
+    ) {
+        e.preventDefault();
+        e.target.blur();
     }
 });
 
+/* ===================== FOCUS ===================== */
 
 container.addEventListener("focusin", (e) => {
     if (e.target.classList.contains("task-due-date")) {
-        console.log("Focused on due date");
         Clear_Field(e);
     }
 });
 
 container.addEventListener("focusout", (e) => {
-    if (e.target.textContent.trim().length == 0) {
-        e.target.textContent = "";
-    }
-    
-    const taskBox = e.target.closest(".box");
-    if (!taskBox) return;
-    
-    const taskId = taskBox.dataset.taskId;
-    const task = task_map.get(taskId);
-
-    // Update Title
-    if (e.target.classList.contains("task-title")) {
-        task.Edit_task_title(e.target.textContent.trim());
-        read_task_map(task_map);
-    }
-
-    // Update Description
-    if (e.target.classList.contains("task-description")) {
-        task.Edit_task_description(e.target.textContent.trim());
-        read_task_map(task_map);
-    }
-    if (e.target.classList.contains("task-due-date") && e.target.textContent.trim() !== "") {
-        if (e.target.textContent.trim().length <= 1 && e.target.textContent.includes("&#9201;")) {
-            e.target.textContent = "";
-        } else {
-            let dateText = e.target.textContent.trim();
-            dateText = "&#9201; " + dateText;
-            e.target.innerHTML = dateText;
-
-            dateText = dateText.replace("⏱ ", "");
-            task.Edit_task_dueDate(dateText);
-            read_task_map(task_map);
-        }    
-    }
-    updateCompleteButtonVisibility(taskBox);
+    const box = e.target.closest(".box");
+    if (box) updateCompleteButtonVisibility(box);
 });
+
+/* ===================== SAFETY ===================== */
+
+window.addEventListener("beforeunload", save_Tasks);
+
+/* ===================== INIT ===================== */
+
+load_Tasks();
