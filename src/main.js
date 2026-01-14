@@ -100,7 +100,7 @@ function mountTask(task, completed) {
 
 function updateCounters() {
     total_tasks.textContent =
-        `Total Tasks: ${task_map.size}`;
+        `Non-Completed Tasks: ${task_map.size}`;
     completed_tasks_count.textContent =
         `Completed Tasks: ${completed_task_map.size}`;
 }
