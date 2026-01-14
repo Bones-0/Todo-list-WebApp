@@ -15,42 +15,25 @@
         <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Noticia+Text:ital,wght@0,400;0,700;1,400;1,700&family=Roboto+Slab:wght@100..900&display=swap" rel="stylesheet">
     </head>
     <body>  
-        <div>
-            <div class ="hamburger-menu">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-            </div>
-            <div class="hamburger-list">
-                <a href="#" class="normal-links">Home</a>
-                <a href="About.html" class="normal-links">About</a>
-                <a href="#" class="normal-links">Socials</a>
-                <hr>
-                <a href="#" class="special-links">Create tasks</a>
-                <a href="#" class="special-links">See completed tasks</a>
-                <a href="#" class="special-links">Task analysis</a>
-                <hr>
-                <a href="#" class="non-special-links">Set reminders</a>                
-                <a href="#" class="non-special-links">Settings</a>
-            </div>
-        </div>
-        <h1 class="headline">Todo list application</h1>
-        <div class="container">
-            <template id="task-template">
-                <div class="box" data-task-id="0">
-                    <div class="task-info">
-                        <h2 class="task-title" contenteditable="true" data-placeholder="Type a task name..."></h2>
-                        <p class="task-description" contenteditable="true" data-placeholder="Give your task a description..."></p>
-                        <p class="task-due-date" contenteditable="true" data-placeholder="&#9201; Set a due date"></p>
-                    </div>
+        <div class="program">
+            <h1 class="headline">Todo list application</h1>
+            <div class="container">
+                <template id="task-template">
+                    <div class="box" data-task-id="0">
+                        <div class="task-info">
+                            <h2 class="task-title" contenteditable="true" data-placeholder="Type a task name..."></h2>
+                            <p class="task-description" contenteditable="true" data-placeholder="Give your task a description..."></p>
+                            <p class="task-due-date" contenteditable="true" data-placeholder="&#9201; Set a due date"></p>
+                        </div>
 
-                    <div class="task-buttons">
-                        <button class="complete-task-button">Complete Task</button>
-                        <button class="delete-task-button">Delete Task</button>
+                        <div class="task-buttons">
+                            <button class="complete-task-button">Complete Task</button>
+                            <button class="delete-task-button">Delete Task</button>
+                        </div>
                     </div>
-                </div>
-            </template>
-            
+                </template>
+                
+            </div>
         </div>
         <div class="add-task">
             <div class="task-stats-box">

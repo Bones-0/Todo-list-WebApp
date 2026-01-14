@@ -3,9 +3,6 @@ import TaskManager from "./TaskManger.js";
 const addtaskBTN = document.getElementsByClassName("add-task-button")[0];
 const template = document.getElementById("task-template");
 const container = document.getElementsByClassName("container")[0];
-const hamburgerMenu = document.querySelector(".hamburger-menu");
-const hamburgerList = document.querySelector(".hamburger-list");
-
 const task_map = new Map();
 const completed_task_map = new Map();
 
@@ -94,10 +91,6 @@ addtaskBTN.addEventListener("click", () => {
 
 /* ===================== CLICK EVENTS ===================== */
 
-hamburgerMenu.addEventListener("click", () => {
-    hamburgerMenu.classList.toggle("active");
-    hamburgerList.classList.toggle("active");
-});
 
 container.addEventListener("click", (e) => {
     const taskBox = e.target.closest(".box");

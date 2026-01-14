@@ -27,6 +27,15 @@
     align-items: center;
 }
 
+.task-buttons * {
+    transition: all 0.3s ease;
+}
+
+.delete-task-button:hover {
+    background-color: #666;
+    color: #fff;
+}
+
 .box .task-buttons button {
     margin: 2.5px;
     background-color: #444;
